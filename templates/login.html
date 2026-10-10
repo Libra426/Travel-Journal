@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 · 旅行手账 | Travel Journal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Shippori+Mincho:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --color-cream: #FDF8F3;
+            --color-warm-white: #FFFEFA;
+            --color-blush: #F5E6E0;
+            --color-sage: #C5D5C5;
+            --color-sage-dark: #A8B5A8;
+            --color-terracotta: #D4A59A;
+            --color-text: #5D5D5D;
+            --color-text-light: #8A8A8A;
+            --color-text-muted: #A9A9A9;
+            --color-border: #E8E0D8;
+            --color-shadow: rgba(139, 119, 101, 0.08);
+            --font-display: 'Shippori Mincho', serif;
+            --font-body: 'Noto Sans JP', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-cream);
+            color: var(--color-text);
+            line-height: 1.8;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(197, 213, 197, 0.16) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(245, 230, 224, 0.22) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(212, 165, 154, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* 波浪装饰 */
+        .wave-decoration {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: url('data:image/svg+xml,%3Csvg width="100%" height="40" viewBox="0 0 1000 40" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M0,20 Q250,0 500,20 T1000,20 L1000,40 L0,40 Z" fill="%23F5E6E0" opacity="0.3"/%3E%3C/svg%3E') repeat-x;
+            background-size: 1000px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* 日式几何装饰 */
+        .japanese-pattern {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            opacity: 0.1;
+            pointer-events: none;
+            background: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M30,5 L35,15 L45,15 L35,25 L40,35 L30,30 L20,35 L25,25 L15,15 L25,15 Z" fill="%23D4A59A"/%3E%3C/svg%3E');
+            z-index: 0;
+        }
+
+        /* 樱花装饰 */
+        .cherry-blossom {
+            position: fixed;
+            background: rgba(245, 230, 224, 0.7);
+            border-radius: 50% 0 50% 0;
+            pointer-events: none;
+            z-index: 0;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.7;
+            }
+
+            25% {
+                transform: translateY(-10px) rotate(5deg);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(0deg);
+                opacity: 0.7;
+            }
+
+            75% {
+                transform: translateY(-10px) rotate(-5deg);
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 登录卡片 */
+        .auth-card {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            background: var(--color-warm-white);
+            border-radius: 20px;
+            padding: 44px 40px 36px;
+            box-shadow:
+                0 8px 32px var(--color-shadow),
+                0 1px 2px rgba(255, 255, 255, 0.8) inset;
+            border: 1px solid rgba(232, 224, 216, 0.5);
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out both;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                linear-gradient(45deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 100%),
+                url('data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z" fill="%23C5D5C5" fill-opacity="0.05" fill-rule="evenodd"/%3E%3C/svg%3E');
+            pointer-events: none;
+            border-radius: 20px;
+        }
+
+        .auth-card::after {
+            content: '';
+            position: absolute;
+            top: -24px;
+            right: -24px;
+            width: 120px;
+            height: 120px;
+            background: url('data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M50,10 C60,20 70,25 80,40 C85,50 85,60 80,70 C70,85 60,90 50,90 C40,90 30,85 20,70 C15,60 15,50 20,40 C30,25 40,20 50,10 Z M50,20 C55,25 60,30 65,35 C70,40 70,45 65,50 C60,55 55,60 50,60 C45,60 40,55 35,50 C30,45 30,40 35,35 C40,30 45,25 50,20 Z" fill="%23F5E6E0" fill-opacity="0.15"/%3E%3C/svg%3E') no-repeat;
+            background-size: contain;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .auth-inner {
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-corner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: url('data:image/svg+xml,%3Csvg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M0,0 L20,0 L20,20 L0,20 Z M5,5 L15,5 L15,15 L5,15 Z" fill="none" stroke="%23D4A59A" stroke-width="1" stroke-opacity="0.2"/%3E%3C/svg%3E');
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .card-corner.top-left {
+            top: 8px;
+            left: 8px;
+        }
+
+        .card-corner.top-right {
+            top: 8px;
+            right: 8px;
+            transform: rotate(90deg);
+        }
+
+        .card-corner.bottom-left {
+            bottom: 8px;
+            left: 8px;
+            transform: rotate(270deg);
+        }
+
+        .card-corner.bottom-right {
+            bottom: 8px;
+            right: 8px;
+            transform: rotate(180deg);
+        }
+
+        /* 头部 */
+        .auth-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .header-decoration {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .header-line {
+            width: 50px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--color-terracotta), transparent);
+        }
+
+        .header-flower {
+            width: 10px;
+            height: 10px;
+            background: var(--color-terracotta);
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        .auth-title {
+            font-family: var(--font-display);
+            font-size: 1.9rem;
+            font-weight: 500;
+            color: var(--color-text);
+            letter-spacing: 0.12em;
+        }
+
+        .auth-subtitle {
+            font-size: 0.82rem;
+            color: var(--color-text-muted);
+            letter-spacing: 0.08em;
+            margin-top: 6px;
+        }
+
+        /* 标签页切换 */
+        .auth-tabs {
+            display: flex;
+            background: var(--color-cream);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 9px 0;
+            text-align: center;
+            font-size: 0.88rem;
+            font-family: var(--font-body);
+            color: var(--color-text-light);
+            cursor: pointer;
+            border: none;
+            background: none;
+            border-radius: 9px;
+            transition: all 0.25s ease;
+            letter-spacing: 0.06em;
+        }
+
+        .auth-tab.active {
+            background: var(--color-warm-white);
+            color: var(--color-text);
+            box-shadow: 0 2px 8px var(--color-shadow);
+            font-weight: 500;
+        }
+
+        /* 表单 */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.78rem;
+            color: var(--color-text-light);
+            margin-bottom: 6px;
+            letter-spacing: 0.04em;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap svg {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 17px;
+            height: 17px;
+            stroke: var(--color-sage-dark);
+            stroke-width: 1.5;
+            fill: none;
+            pointer-events: none;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 11px 14px 11px 42px;
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            font-family: var(--font-body);
+            font-size: 0.88rem;
+            color: var(--color-text);
+            background: var(--color-cream);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .form-group input:focus {
+            border-color: var(--color-sage);
+            background: var(--color-warm-white);
+            box-shadow: 0 0 0 3px rgba(197, 213, 197, 0.25);
+        }
+
+        .form-group input::placeholder {
+            color: var(--color-text-muted);
+        }
+
+        /* 错误提示 */
+        .auth-error {
+            display: none;
+            background: var(--color-blush);
+            border: 1px solid rgba(212, 165, 154, 0.5);
+            color: #B07A6C;
+            font-size: 0.8rem;
+            border-radius: 10px;
+            padding: 9px 14px;
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+
+        .auth-error.show {
+            display: block;
+            animation: fadeInUp 0.3s ease-out both;
+        }
+
+        .auth-error.success {
+            background: rgba(197, 213, 197, 0.22);
+            border-color: rgba(168, 181, 168, 0.5);
+            color: #6E8B6E;
+        }
+
+        /* 主按钮 */
+        .auth-submit {
+            width: 100%;
+            padding: 12px 22px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--color-sage), var(--color-sage-dark));
+            color: white;
+            font-size: 0.9rem;
+            font-family: var(--font-body);
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            box-shadow: 0 4px 14px rgba(197, 213, 197, 0.5);
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(197, 213, 197, 0.6);
+        }
+
+        .auth-submit:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.78rem;
+            color: var(--color-text-muted);
+        }
+
+        .auth-footer a {
+            color: var(--color-terracotta);
+            text-decoration: none;
+            cursor: pointer;
+            margin-left: 4px;
+            font-weight: 500;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 32px 24px 28px;
+            }
+
+            .auth-title {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 装饰元素 -->
+    <div class="wave-decoration"></div>
+    <div class="japanese-pattern" style="top: 12%; left: 6%; transform: rotate(15deg);"></div>
+    <div class="japanese-pattern" style="top: 26%; right: 9%; transform: rotate(-10deg);"></div>
+    <div class="japanese-pattern" style="bottom: 22%; left: 14%; transform: rotate(25deg);"></div>
+    <div class="japanese-pattern" style="bottom: 36%; right: 16%; transform: rotate(-20deg);"></div>
+
+    <div class="auth-card">
+        <div class="card-corner top-left"></div>
+        <div class="card-corner top-right"></div>
+        <div class="card-corner bottom-left"></div>
+        <div class="card-corner bottom-right"></div>
+
+        <div class="auth-inner">
+            <div class="auth-header">
+                <div class="header-decoration">
+                    <span class="header-line"></span>
+                    <span class="header-flower"></span>
+                    <span class="header-line"></span>
+                </div>
+                <h1 class="auth-title">旅行手账</h1>
+                <p class="auth-subtitle">记录每一次出发，珍藏每一段时光</p>
+            </div>
+
+            <div class="auth-tabs" id="authTabs">
+                <button type="button" class="auth-tab active" data-mode="login">登录</button>
+                <button type="button" class="auth-tab" data-mode="register">注册</button>
+            </div>
+
+            <div class="auth-error" id="authError"></div>
+
+            <form id="authForm" autocomplete="off">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <div class="input-wrap">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg>
+                        <input type="text" id="username" placeholder="请输入用户名" maxlength="20">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <div class="input-wrap">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="3" y="11" width="18" height="11" rx="2" />
+                            <path d="M7 11V7a5 5 0 0110 0v4" />
+                        </svg>
+                        <input type="password" id="password" placeholder="请输入密码" maxlength="64">
+                    </div>
+                </div>
+
+                <div class="form-group" id="confirmGroup" style="display: none;">
+                    <label for="confirmPassword">确认密码</label>
+                    <div class="input-wrap">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="3" y="11" width="18" height="11" rx="2" />
+                            <path d="M7 11V7a5 5 0 0110 0v4" />
+                        </svg>
+                        <input type="password" id="confirmPassword" placeholder="请再次输入密码" maxlength="64">
+                    </div>
+                </div>
+
+                <button type="submit" class="auth-submit" id="submitBtn">登 录</button>
+            </form>
+
+            <div class="auth-footer" id="authFooter">
+                还没有账号？<a id="switchToRegister">立即注册</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            let mode = 'login';
+
+            const tabs = document.getElementById('authTabs');
+            const tabLogin = tabs.querySelector('[data-mode="login"]');
+            const tabRegister = tabs.querySelector('[data-mode="register"]');
+            const confirmGroup = document.getElementById('confirmGroup');
+            const submitBtn = document.getElementById('submitBtn');
+            const authError = document.getElementById('authError');
+            const authFooter = document.getElementById('authFooter');
+            const switchToRegister = document.getElementById('switchToRegister');
+            const form = document.getElementById('authForm');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const confirmInput = document.getElementById('confirmPassword');
+
+            function setMode(next) {
+                mode = next;
+                const isRegister = mode === 'register';
+                tabLogin.classList.toggle('active', !isRegister);
+                tabRegister.classList.toggle('active', isRegister);
+                confirmGroup.style.display = isRegister ? 'block' : 'none';
+                submitBtn.textContent = isRegister ? '注 册' : '登 录';
+                authFooter.innerHTML = isRegister ?
+                    '已有账号？<a id="switchToLogin">去登录</a>' :
+                    '还没有账号？<a id="switchToRegister">立即注册</a>';
+                hideError();
+                // 重新绑定底部切换链接
+                const switchLink = isRegister
+                    ? authFooter.querySelector('#switchToLogin')
+                    : authFooter.querySelector('#switchToRegister');
+                if (switchLink) {
+                    switchLink.addEventListener('click', () => setMode(isRegister ? 'login' : 'register'));
+                }
+            }
+
+            tabLogin.addEventListener('click', () => setMode('login'));
+            tabRegister.addEventListener('click', () => setMode('register'));
+            switchToRegister.addEventListener('click', () => setMode('register'));
+
+            function showError(msg) {
+                authError.textContent = msg;
+                authError.classList.remove('success');
+                authError.classList.add('show');
+            }
+
+            function showSuccess(msg) {
+                authError.textContent = msg;
+                authError.classList.add('success');
+                authError.classList.add('show');
+            }
+
+            function hideError() {
+                authError.textContent = '';
+                authError.classList.remove('show');
+                authError.classList.remove('success');
+            }
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                hideError();
+
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value;
+
+                if (!username || !password) {
+                    showError('请输入用户名和密码');
+                    return;
+                }
+
+                if (mode === 'register') {
+                    if (username.length < 2) {
+                        showError('用户名长度需在 2~20 个字符之间');
+                        return;
+                    }
+                    if (password.length < 6) {
+                        showError('密码长度至少 6 位');
+                        return;
+                    }
+                    if (password !== confirmInput.value) {
+                        showError('两次输入的密码不一致');
+                        return;
+                    }
+                }
+
+                submitBtn.disabled = true;
+                submitBtn.textContent = mode === 'register' ? '注册中…' : '登录中…';
+
+                try {
+                    const res = await fetch(mode === 'register' ? '/api/register' : '/api/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+                    const data = await res.json();
+                    if (!res.ok || data.error) {
+                        showError(data.error || '操作失败，请重试');
+                        return;
+                    }
+
+                    // 注册成功后切回登录栏目，不自动进入
+                    if (mode === 'register') {
+                        setMode('login');
+                        passwordInput.value = '';
+                        confirmInput.value = '';
+                        showSuccess('注册成功，请登录');
+                        return;
+                    }
+
+                    window.location.href = '/';
+                } catch (err) {
+                    showError('网络异常，请重试');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = mode === 'register' ? '注 册' : '登 录';
+                }
+            });
+
+            // 樱花飘落效果
+            function createCherryBlossom() {
+                const blossom = document.createElement('div');
+                blossom.className = 'cherry-blossom';
+                const size = Math.random() * 8 + 4;
+                blossom.style.width = size + 'px';
+                blossom.style.height = size + 'px';
+                blossom.style.left = (Math.random() * 100) + '%';
+                blossom.style.top = '-20px';
+                blossom.style.animationDelay = (Math.random() * 20) + 's';
+                blossom.style.animationDuration = (Math.random() * 10 + 15) + 's';
+                blossom.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
+                document.body.appendChild(blossom);
+                const total = (parseFloat(blossom.style.animationDuration) + parseFloat(blossom.style.animationDelay)) * 1000;
+                setTimeout(() => {
+                    if (blossom.parentNode) blossom.parentNode.removeChild(blossom);
+                }, total);
+            }
+
+            for (let i = 0; i < 12; i++) {
+                setTimeout(createCherryBlossom, i * 260);
+            }
+            setInterval(createCherryBlossom, 700);
+        })();
+    </script>
+</body>
+
+</html>
