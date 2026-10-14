@@ -1064,6 +1064,136 @@
             background: rgba(197, 213, 197, 0.18);
         }
 
+        /* ===== 删除确认弹窗 ===== */
+        .confirm-dialog {
+            width: 320px;
+            max-width: 88vw;
+            border-radius: 20px;
+            overflow: hidden;
+            background: var(--color-warm-white);
+            position: relative;
+        }
+
+        .confirm-dialog::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            z-index: 1;
+            background: linear-gradient(90deg, var(--color-terracotta), var(--color-blush), var(--color-sage), var(--color-blush), var(--color-terracotta));
+        }
+
+        .confirm-dialog-head {
+            position: relative;
+            padding: 24px 22px 6px;
+            text-align: center;
+            background:
+                radial-gradient(circle at 20% 0%, rgba(245, 230, 224, 0.6) 0%, transparent 55%),
+                radial-gradient(circle at 80% 0%, rgba(197, 213, 197, 0.35) 0%, transparent 55%);
+        }
+
+        .confirm-dialog-head .modal-close {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+        }
+
+        .confirm-dialog-icon {
+            width: 52px;
+            height: 52px;
+            margin: 0 auto 12px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--color-blush), #F9EEE9);
+            box-shadow: 0 6px 18px rgba(212, 165, 154, 0.25);
+        }
+
+        .confirm-dialog-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--color-terracotta);
+        }
+
+        .confirm-dialog-title {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            color: var(--color-text);
+            margin: 0 0 4px;
+            letter-spacing: 0.03em;
+        }
+
+        .confirm-dialog-subtitle {
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            color: var(--color-text-muted);
+            letter-spacing: 0.18em;
+            margin: 0;
+        }
+
+        .confirm-dialog-body {
+            padding: 14px 22px 24px;
+            text-align: center;
+        }
+
+        .confirm-dialog-text {
+            font-size: 0.9rem;
+            color: var(--color-text-light);
+            line-height: 1.7;
+            margin: 0 0 20px;
+        }
+
+        .confirm-dialog-text strong {
+            color: var(--color-terracotta);
+            font-weight: 500;
+        }
+
+        .confirm-dialog-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .confirm-dialog-btn {
+            padding: 9px 22px;
+            border-radius: 22px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-family: var(--font-body);
+            font-weight: 500;
+            border: none;
+            transition: all 0.25s ease;
+            letter-spacing: 0.02em;
+        }
+
+        .confirm-dialog-btn--cancel {
+            background: var(--color-warm-white);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-light);
+        }
+
+        .confirm-dialog-btn--cancel:hover {
+            background: var(--color-cream);
+            border-color: var(--color-sage);
+            color: var(--color-text);
+            transform: translateY(-1px);
+        }
+
+        .confirm-dialog-btn--danger {
+            background: linear-gradient(135deg, var(--color-terracotta), #C89588);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(212, 165, 154, 0.4);
+        }
+
+        .confirm-dialog-btn--danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 165, 154, 0.5);
+            filter: brightness(1.03);
+        }
+
         /* 减少动画偏好 */
         @media (prefers-reduced-motion: reduce) {
 
@@ -1541,11 +1671,18 @@
     <!-- 顶部用户栏 -->
     <div class="user-bar" id="userBar" style="display: none;">
         <span class="user-name" id="userName">
-            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <svg viewBox="0 0 24 24">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+            </svg>
             <span id="userNameText">用户</span>
         </span>
         <button class="logout-btn" id="logoutBtn" title="退出登录">
-            <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+            <svg viewBox="0 0 24 24">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                <path d="M16 17l5-5-5-5" />
+                <path d="M21 12H9" />
+            </svg>
             退出
         </button>
     </div>
@@ -1698,7 +1835,9 @@
                 <button class="modal-close" id="uploadModalClose">&times;</button>
             </div>
             <div class="modal-body upload-form">
-                <div class="selected-count" id="selectedCount" style="margin-bottom: 16px; padding: 8px 14px; background: rgba(197, 213, 197, 0.16); border-radius: 8px; font-size: 0.8rem; color: var(--color-sage-dark); letter-spacing: 0.03em;">已选择 1 张照片</div>
+                <div class="selected-count" id="selectedCount"
+                    style="margin-bottom: 16px; padding: 8px 14px; background: rgba(197, 213, 197, 0.16); border-radius: 8px; font-size: 0.8rem; color: var(--color-sage-dark); letter-spacing: 0.03em;">
+                    已选择 1 张照片</div>
                 <div class="form-group">
                     <label>心情（单选）</label>
                     <div id="moodGroup"></div>
@@ -2484,21 +2623,20 @@
                 const confirmModal = document.createElement('div');
                 confirmModal.className = 'journal-modal';
                 confirmModal.innerHTML = `
-                    <div class="modal-content" style="max-width: 400px; border-radius: 16px; overflow: hidden;">
-                        <div class="modal-header" style="background: linear-gradient(135deg, var(--color-blush), var(--color-cream)); border-bottom: none; padding: 24px;">
-                            <h3 style="color: var(--color-text); margin: 0; font-family: var(--font-display);">确认删除</h3>
-                            <button class="modal-close" style="color: var(--color-text);">&times;</button>
-                        </div>
-                        <div class="modal-body" style="padding: 32px; text-align: center;">
-                            <div style="margin-bottom: 24px;">
-                                <svg viewBox="0 0 24 24" style="width: 60px; height: 60px; margin: 0 auto; fill: var(--color-terracotta); opacity: 0.8;">
-                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                                </svg>
+                    <div class="modal-content confirm-dialog">
+                        <div class="confirm-dialog-head">
+                            <button class="modal-close">&times;</button>
+                            <div class="confirm-dialog-icon">
+                                <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                             </div>
-                            <p style="font-size: 1rem; color: var(--color-text); margin-bottom: 32px; line-height: 1.6;">确定要删除这篇手账吗？<br>删除后无法恢复。</p>
-                            <div style="display: flex; gap: 12px; justify-content: center;">
-                                <button class="cancel-btn" style="background: var(--color-warm-white); border: 1px solid var(--color-border); color: var(--color-text); padding: 10px 24px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-family: var(--font-body); transition: all 0.3s ease;">取消</button>
-                                <button class="confirm-btn" style="background: linear-gradient(135deg, var(--color-terracotta), #C89588); color: white; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-family: var(--font-body); font-weight: 500; border: none; box-shadow: 0 2px 8px rgba(212, 165, 154, 0.3); transition: all 0.3s ease;">确认删除</button>
+                            <h3 class="confirm-dialog-title">删除这篇手账？</h3>
+                            <p class="confirm-dialog-subtitle">DELETE JOURNAL</p>
+                        </div>
+                        <div class="confirm-dialog-body">
+                            <p class="confirm-dialog-text">删除后<strong>无法恢复</strong>，确定要继续吗？</p>
+                            <div class="confirm-dialog-actions">
+                                <button class="confirm-dialog-btn confirm-dialog-btn--cancel cancel-btn">再想想</button>
+                                <button class="confirm-dialog-btn confirm-dialog-btn--danger confirm-btn">确认删除</button>
                             </div>
                         </div>
                     </div>

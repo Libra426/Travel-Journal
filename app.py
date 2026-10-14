@@ -162,11 +162,13 @@ def safe_filename(filename):
     return f"{int(time.time() * 1000)}_{name}"
 
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
+app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'static', 'uploads')
 app.config['MAX_CONTENT_LENGTH'] = 40 * 1024 * 1024  # 40MB（多图上传）
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'shiguang-shouzhang-dev-secret-key')
-app.config['JOURNALS_FILE'] = 'journals.json'  # 仅用于首次启动时的旧数据迁移
+app.config['JOURNALS_FILE'] = os.path.join(BASE_DIR, 'journals.json')  # 仅用于首次启动时的旧数据迁移
 
 # 允许上传的图片扩展名
 ALLOWED_IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'}
@@ -390,10 +392,27 @@ def upload():
 @app.route('/journals/<id>', methods=['DELETE'])
 @login_required
 def delete_journal(id):
-    """删除当前用户的一篇手账"""
+    """删除当前用户的一篇手账，并清理其关联的图片文件"""
+    journal = get_journal(current_user_id(), id)
+    if not journal:
+        return jsonify({'error': 'Journal not found'}), 404
+
     deleted = delete_journal_row(current_user_id(), id)
     if not deleted:
         return jsonify({'error': 'Journal not found'}), 404
+
+    # 删除该手账关联的图片文件，避免残留孤儿图片
+    filenames = journal.get('images') or ([journal.get('filename')] if journal.get('filename') else [])
+    for fn in filenames:
+        if not fn:
+            continue
+        path = os.path.join(app.config['UPLOAD_FOLDER'], fn)
+        if os.path.exists(path):
+            try:
+                os.remove(path)
+            except OSError:
+                pass
+
     return jsonify({'message': 'Journal deleted successfully'})
 
 @app.route('/journals/<id>', methods=['PUT'])
